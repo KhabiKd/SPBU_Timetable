@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">SPBU Timetable</string>
+    <string name="faculties">Факультеты</string>
+    <string name="programs">Программы</string>
+    <string name="groups">Группы</string>
+    <string name="search">Поиск</string>
+    <string name="close">Закрыть</string>
+    <string name="network_problem">Не удается подключиться к Интернету.\nПроверьте настройки сети и повторите попытку.</string>
+    <string name="restInfo_bbq">Ура, пар нет!\nВремя пожарить сосиски!</string>
+    <string name="restInfo_family">Ура, пар нет!\nВремя для встречи с родными!</string>
+    <string name="restInfo_love">Ура, пар нет!\nВремя для романтических свиданий!</string>
+    <string name="restInfo_puppy">Ура, пар нет!\nВремя для прогулок с любимым питомцем!</string>
+    <string name="restInfo_rest">Ура, пар нет!\nВремя просто полежать на кровати!</string>
+    <string name="restInfo_train">Ура, пар нет!\nВремя позаниматься спортом!</string>
+    <string name="to_faculties">Факультеты</string>
+    <string name="favorites">Здесь будут ваши Избранные Группы\nСкорее добавьте их!</string>
+</resources>
