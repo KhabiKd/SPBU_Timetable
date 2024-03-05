@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-
+// Test commit
 @Composable
 fun TimetableApp(
     viewModel: TimetableViewModel = TimetableViewModel(TimetableRepositoryImpl()),
