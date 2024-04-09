@@ -2,7 +2,10 @@ package com.kudbi.spbutimetable
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -14,17 +17,21 @@ import com.kudbi.spbutimetable.data.TimetableRepositoryImpl
 import com.kudbi.spbutimetable.ui.FavoriteGroupsViewModel
 import com.kudbi.spbutimetable.ui.TimetableViewModel
 import com.kudbi.spbutimetable.ui.screens.*
+import com.kudbi.spbutimetable.uiApi.TimetableViewModelApi
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-// Test commit
+
 @Composable
 fun TimetableApp(
     viewModel: TimetableViewModel = TimetableViewModel(TimetableRepositoryImpl()),
 ) {
+    val timetableViewModelApi: TimetableViewModelApi = viewModel(factory = TimetableViewModelApi.Factory)
+    val isLoading by timetableViewModelApi.isLoading.collectAsState()
+
     val navController = rememberNavController()
     val context = LocalContext.current
     val selectedGroup = viewModel.getSelectedGroup(context)
@@ -68,9 +75,10 @@ fun TimetableApp(
 
         composable("faculties") {
             FacultiesScreen(
-                faculties = viewModel.faculties,
-                onFacultySelected = { facultyPath ->
-                    viewModel.loadPrograms(facultyPath)
+                isLoading = isLoading,
+                faculties = timetableViewModelApi.faculties,
+                onFacultySelected = { alias ->
+                    timetableViewModelApi.getDegrees(alias)
                     navController.navigate("degree")
                 },
             )
@@ -80,9 +88,10 @@ fun TimetableApp(
             "degree"
         ) {
             ProgramDegreesScreen(
-                degrees = viewModel.degrees,
+                isLoading = isLoading,
+                degrees = timetableViewModelApi.degrees,
                 onProgramSelected = { degree ->
-                    viewModel.loadProgramsName(degree)
+                    timetableViewModelApi.getPrograms(degree)
                     navController.navigate("programs/${degree}")
                 },
                 navigateUp = { navController.navigateUp() }
@@ -96,10 +105,11 @@ fun TimetableApp(
             val degree = backStackEntry.arguments?.getString("degree")
             if (degree != null) {
                 ProgramsNameScreen(
-                    programsName = viewModel.programsName,
-                    degree = degree,
+                    isLoading = isLoading,
+                    programs = timetableViewModelApi.programs,
+                    studyLevelName = degree,
                     onProgramSelected = { programName ->
-                        viewModel.loadProgramsYear(programName)
+                        timetableViewModelApi.getYears(programName)
                         navController.navigate("years/${programName}")
                     },
                     navigateUp = { navController.navigateUp() }
@@ -114,10 +124,11 @@ fun TimetableApp(
             val programName = backStackEntry.arguments?.getString("programName")
             if (programName != null) {
                 ProgramsYearScreen(
-                    programsYear = viewModel.programsYear,
+                    isLoading = isLoading,
+                    years = timetableViewModelApi.years,
                     programName = programName,
                     onProgramSelected = { programYear, programPath ->
-                        viewModel.loadGroups(programPath)
+                        timetableViewModelApi.getGroups(programPath)
                         navController.navigate("groups/${programYear}")
                     },
                     navigateUp = { navController.navigateUp() }
@@ -132,8 +143,9 @@ fun TimetableApp(
             val programYear = backStackEntry.arguments?.getString("programYear")
             if (programYear != null) {
                 GroupsScreen(
-                    groups = viewModel.groups,
-                    programYear = programYear,
+                    isLoading = isLoading,
+                    groups = timetableViewModelApi.groups,
+                    year = programYear,
                     onGroupSelected = { group, groupPath ->
                         viewModel.loadLessons(
                             groupPath,
@@ -141,7 +153,6 @@ fun TimetableApp(
                         )
                         val encodedUrl =
                             URLEncoder.encode(groupPath, StandardCharsets.UTF_8.toString())
-//                        viewModel.saveSelectedGroup(context, group, encodedUrl)
                         navController.navigate("lessons/${group}/${encodedUrl}")
                     },
                     navigateUp = { navController.navigateUp() }

@@ -3,6 +3,7 @@ package com.kudbi.spbutimetable.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,10 +13,13 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.spbutimetableonapi.network.model.StudyLevel
 import com.kudbi.spbutimetable.R
 import com.kudbi.spbutimetable.domain.model.ProgramInfo
 import com.kudbi.spbutimetable.ui.theme.White
@@ -41,7 +45,8 @@ fun ProgramDegreesScreenTopAppBar(navigateUp: () -> Unit) {
 
 @Composable
 fun ProgramDegreesScreen(
-    degrees: Map<String, List<ProgramInfo>>,
+    isLoading: Boolean,
+    degrees: List<StudyLevel>,
     onProgramSelected: (String) -> Unit,
     navigateUp: () -> Unit,
 ) {
@@ -52,9 +57,14 @@ fun ProgramDegreesScreen(
             }
         }
     ) { padding ->
+        if (isLoading) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(color = MaterialTheme.colors.primary)
+            }
+        }
         LazyColumn(modifier = Modifier.padding(padding)) {
-            items(degrees.keys.toList()) { degree ->
-                ProgramDegreeCard(degree, onProgramSelected)
+            items(degrees) { degree ->
+                ProgramDegreeCard(degree.studyLevelName, onProgramSelected)
             }
         }
     }
