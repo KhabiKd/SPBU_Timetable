@@ -1,4 +1,4 @@
-package com.example.spbutimetableonapi.network.model
+package com.kudbi.spbutimetable.network.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -7,14 +7,14 @@ import kotlinx.serialization.Serializable
 data class GroupLessons(
     @SerialName("StudentGroupId") val studentGroupId: Int,
     @SerialName("StudentGroupDisplayName") val studentGroupDisplayName: String,
-    @SerialName("Days") val days: LessonsDay
+    @SerialName("Days") val days: List<LessonsDay>
 )
 
 @Serializable
 data class LessonsDay(
     @SerialName("Day") val day: String,
     @SerialName("DayString") val dayString: String,
-    @SerialName("DayStudyEvents") val dayStudyEvents: Subject
+    @SerialName("DayStudyEvents") val dayStudyEvents: List<Subject>
 )
 
 @Serializable

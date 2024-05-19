@@ -15,11 +15,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.spbutimetableonapi.network.model.StudyProgramCombination
-import com.kudbi.spbutimetable.domain.model.ProgramInfo
+import com.kudbi.spbutimetable.network.model.StudyProgramCombination
 import com.kudbi.spbutimetable.ui.theme.White
 
 @Composable

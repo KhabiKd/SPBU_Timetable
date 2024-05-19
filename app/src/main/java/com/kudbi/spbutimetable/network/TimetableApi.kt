@@ -1,9 +1,11 @@
 package com.kudbi.spbutimetable.network
 
-import com.example.spbutimetableonapi.network.model.Faculty
-import com.example.spbutimetableonapi.network.model.GroupLessons
-import com.example.spbutimetableonapi.network.model.Groups
-import com.example.spbutimetableonapi.network.model.StudyLevel
+import com.kudbi.spbutimetable.network.model.EducatorLessons
+import com.kudbi.spbutimetable.network.model.Educators
+import com.kudbi.spbutimetable.network.model.Faculty
+import com.kudbi.spbutimetable.network.model.GroupLessons
+import com.kudbi.spbutimetable.network.model.Groups
+import com.kudbi.spbutimetable.network.model.StudyLevel
 import com.kudbi.spbutimetable.util.TypeTimetable
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -24,6 +26,18 @@ interface TimetableAPI {
         @Path("studentGroupId") studentGroupId: String,
         @Path("startDate") startDate: String,
         @Path("endDate") endDate: String,
-        @Query("timetable") type: TypeTimetable
+//        @Query("timetable") type: TypeTimetable
     ): GroupLessons
+
+    @GET("api/v1/educators/search/{query}")
+    suspend fun searchEducator(
+        @Path("query") query: String
+    ): Educators
+
+    @GET("api/v1/educators/{id}/events/{startDate}/{endDate}")
+    suspend fun getEducatorLessons(
+       @Path("id") id: String,
+       @Path("startDate") startDate: String,
+       @Path("endDate") endDate: String,
+    ): EducatorLessons
 }

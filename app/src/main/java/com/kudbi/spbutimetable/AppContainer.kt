@@ -1,7 +1,7 @@
 package com.kudbi.spbutimetable
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.kudbi.spbutimetable.dataApi.TimetableRepositoryApi
+import com.kudbi.spbutimetable.data.TimetableRepositoryApi
 import com.kudbi.spbutimetable.network.TimetableAPI
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType

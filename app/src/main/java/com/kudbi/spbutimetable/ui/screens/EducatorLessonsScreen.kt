@@ -2,16 +2,48 @@ package com.kudbi.spbutimetable.ui.screens
 
 import android.app.DatePickerDialog
 import android.widget.DatePicker
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.runtime.*
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,29 +54,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import com.kudbi.spbutimetable.R
-import com.kudbi.spbutimetable.domain.entities.ThemeManager
 import com.kudbi.spbutimetable.domain.entities.Constants
+import com.kudbi.spbutimetable.domain.entities.ThemeManager
 import com.kudbi.spbutimetable.domain.model.restList
 import com.kudbi.spbutimetable.ui.FavoriteGroupsViewModel
-import com.kudbi.spbutimetable.ui.TimetableViewModel
-import com.kudbi.spbutimetable.ui.theme.*
+import com.kudbi.spbutimetable.ui.theme.Bronze
+import com.kudbi.spbutimetable.ui.theme.Orange
+import com.kudbi.spbutimetable.ui.theme.White
+import com.kudbi.spbutimetable.ui.EducatorViewModel
+import com.kudbi.spbutimetable.ui.TimetableViewModelApi
+import com.kudbi.spbutimetable.util.TypeUser
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import java.util.*
+import java.util.Locale
 
 @Composable
-fun LessonsScreenTopBar(
-    group: String,
+fun EducatorLessonsScreenTopBarApi(
+    name: String,
     selectedDate: LocalDate,
     isFavorite: Boolean,
     onDatePickerSelected: (LocalDate) -> Unit,
@@ -61,7 +98,7 @@ fun LessonsScreenTopBar(
                 modifier = Modifier,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(text = group, color = White)
+                Text(text = name, color = White, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(
                     text = "${month[selectedDate.month.value - 1]} ${
                         selectedDate.format(
@@ -100,7 +137,7 @@ fun LessonsScreenTopBar(
         }
     )
     if (showDatePicker) {
-        DatePicker(
+        EducatorDatePickerApi(
             initialDate = LocalDate.now(),
             onDateSelected = { date: LocalDate ->
                 onDatePickerSelected(date)
@@ -111,7 +148,7 @@ fun LessonsScreenTopBar(
 }
 
 @Composable
-fun DatePicker(initialDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
+fun EducatorDatePickerApi(initialDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
     val mContext = LocalContext.current
     var selectedDate by remember { mutableStateOf(initialDate) }
     val year = selectedDate.year
@@ -131,52 +168,65 @@ fun DatePicker(initialDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
 }
 
 @Composable
-fun LessonsScreen(
-    timetableViewModel: TimetableViewModel,
+fun EducatorLessonsScreenApi(
+    isLoading: Boolean,
+    timetableViewModelApi: TimetableViewModelApi,
+    educatorViewModel: EducatorViewModel,
     favoriteGroupsViewModel: FavoriteGroupsViewModel,
-    group: String,
-    groupPath: String,
+    name: String,
+    id: String,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
+
+    val days = remember { educatorViewModel.days }
+    val lessons = remember { educatorViewModel.lessons }
+
     val context = LocalContext.current
     val darkTheme by ThemeManager.darkTheme.collectAsState()
-    val formatter = DateTimeFormatter.ofPattern("dd.MM")
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    val lessons = remember { timetableViewModel.lessons }
-
-    val isLoading by timetableViewModel.isLoading.collectAsState()
 
     val favoriteGroups by favoriteGroupsViewModel.favoriteGroups.collectAsState()
     val isFavorite by favoriteGroupsViewModel.isFavorite.collectAsState()
-    favoriteGroupsViewModel.updateIsFavorite(group, groupPath)
+    favoriteGroupsViewModel.updateIsFavorite(name, id, TypeUser.EDUCATOR)
 
     val scaffoldState = rememberScaffoldState()
     val coroutineScope = rememberCoroutineScope()
-    var datesOfWeek by remember { mutableStateOf(timetableViewModel.getCurrentWeek(selectedDate)) }
+    var datesOfWeek by remember { mutableStateOf(educatorViewModel.getCurrentWeek(selectedDate)) }
 
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            LessonsScreenTopBar(
-                group = group,
+            EducatorLessonsScreenTopBarApi(
+                name = name,
                 selectedDate = selectedDate,
                 isFavorite = isFavorite,
                 onDatePickerSelected = { date ->
                     selectedDate = date
-                    datesOfWeek = timetableViewModel.getCurrentWeek(date)
-                    timetableViewModel.loadLessons(
-                        groupPath = groupPath,
-                        date = selectedDate.format(formatter)
-                    )
+                    datesOfWeek = educatorViewModel.getCurrentWeek(date)
+                    coroutineScope.launch {
+                        educatorViewModel.getEducatorLessons(
+                            id = id,
+                            date = selectedDate
+                        )
+                        while (timetableViewModelApi.days.isEmpty()) {
+                            delay(10)
+                        }
+                        if (days.any { it.day.substring(0, 10) == selectedDate.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd")) }) {
+                            educatorViewModel.getEducatorLessonsByDay(days.find { it.day.substring(0, 10) == selectedDate.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd"))}!!.dayStudyEvents)
+                        }
+                        else { lessons.clear() }
+                    }
                 },
                 onMenuClick = { coroutineScope.launch { scaffoldState.drawerState.open() } },
                 onFavoriteClick = {
-                    favoriteGroupsViewModel.updateIsFavorite(group, groupPath)
+                    favoriteGroupsViewModel.updateIsFavorite(name, id, TypeUser.EDUCATOR)
                     if (isFavorite) {
-                        favoriteGroupsViewModel.removeFavoriteGroup(group, groupPath)
+                        favoriteGroupsViewModel.removeFavoriteGroup(name, id, TypeUser.EDUCATOR)
                     } else {
-                        favoriteGroupsViewModel.addFavoriteGroup(group, groupPath)
+                        favoriteGroupsViewModel.addFavoriteGroup(name, id, TypeUser.EDUCATOR)
                     }
                 },
                 darkTheme = darkTheme,
@@ -198,7 +248,7 @@ fun LessonsScreen(
                             coroutineScope.launch {
                                 scaffoldState.drawerState.close()
                             }
-                            navController.navigate("faculties")
+                            navController.navigate("startscreen")
                         }
                         .padding(16.dp)
                 )
@@ -232,22 +282,37 @@ fun LessonsScreen(
                                             it.groupPath,
                                             StandardCharsets.UTF_8.toString()
                                         )
-                                    timetableViewModel.loadLessons(
-                                        it.groupPath,
-                                        LocalDate
-                                            .now()
-                                            .format(DateTimeFormatter.ofPattern("dd.MM"))
-                                    )
-                                    navController.navigate(
-                                        "lessons/${it.group}/${encodedUrl}",
-                                        navOptions = NavOptions
-                                            .Builder()
-                                            .setPopUpTo(
-                                                "lessons/{group}/{groupPath}",
-                                                inclusive = true
-                                            )
-                                            .build()
-                                    )
+                                    if (it.typeUser == TypeUser.STUDENT) {
+                                        timetableViewModelApi.getLessons(
+                                            it.groupPath,
+                                            LocalDate.now()
+                                        )
+                                        navController.navigate(
+                                            "lessons/${it.group}/${encodedUrl}",
+                                            navOptions = NavOptions
+                                                .Builder()
+                                                .setPopUpTo(
+                                                    "lessons/{group}/{groupPath}",
+                                                    inclusive = true
+                                                )
+                                                .build()
+                                        )
+                                    } else if (it.typeUser == TypeUser.EDUCATOR) {
+                                        educatorViewModel.getEducatorLessons(
+                                            it.groupPath,
+                                            LocalDate.now()
+                                        )
+                                        navController.navigate(
+                                            "educatorlessons/${it.group}/${encodedUrl}",
+                                            navOptions = NavOptions
+                                                .Builder()
+                                                .setPopUpTo(
+                                                    "educatorlessons/{name}/{id}",
+                                                    inclusive = true
+                                                )
+                                                .build()
+                                        )
+                                    }
                                 }
                                 .padding(
                                     start = 32.dp,
@@ -295,16 +360,27 @@ fun LessonsScreen(
             ) {
 
                 IconButton(onClick = {
-                    datesOfWeek = timetableViewModel.getPreviousWeek(datesOfWeek)
+                    datesOfWeek = educatorViewModel.getPreviousWeek(datesOfWeek)
                     selectedDate =
                         if (datesOfWeek.contains(LocalDate.now())) LocalDate.now() else datesOfWeek[0]
-                    timetableViewModel.loadLessons(
-                        groupPath = groupPath,
-                        date = selectedDate.format(formatter)
-                    )
+                    coroutineScope.launch {
+                        educatorViewModel.getEducatorLessons(
+                            id = id,
+                            date = selectedDate
+                        )
+                        while (timetableViewModelApi.days.isEmpty()) {
+                            delay(10)
+                        }
+                        if (days.any { it.day.substring(0, 10) == selectedDate.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd")) }) {
+                            educatorViewModel.getEducatorLessonsByDay(days.find { it.day.substring(0, 10) == selectedDate.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd"))}!!.dayStudyEvents)
+                        }
+                        else { lessons.clear() }
+                    }
                 }, modifier = Modifier.weight(1f)) {
                     Icon(
-                        imageVector = Icons.Default.KeyboardArrowLeft,
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                         tint = Orange,
                         contentDescription = "Previous week"
                     )
@@ -312,31 +388,44 @@ fun LessonsScreen(
 
                 datesOfWeek.forEachIndexed { _, date ->
                     Box(modifier = Modifier.weight(1f)) {
-                        DateItem(
+                        EducatorDateItemApi(
                             date,
                             isSelected = date == selectedDate,
                             onClick = {
                                 selectedDate = date
-                                timetableViewModel.loadLessons(
-                                    groupPath = groupPath,
-                                    date = selectedDate.format(formatter)
-                                )
+                                if (days.any { it.day.substring(0, 10) == selectedDate.format(
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd")) }) {
+                                    educatorViewModel.getEducatorLessonsByDay(days.find { it.day.substring(0, 10) == selectedDate.format(
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd"))}!!.dayStudyEvents)
+                                }
+                                else { lessons.clear() }
                             }
                         )
                     }
                 }
 
                 IconButton(onClick = {
-                    datesOfWeek = timetableViewModel.getNextWeek(datesOfWeek)
+                    datesOfWeek = educatorViewModel.getNextWeek(datesOfWeek)
                     selectedDate =
                         if (datesOfWeek.contains(LocalDate.now())) LocalDate.now() else datesOfWeek[0]
-                    timetableViewModel.loadLessons(
-                        groupPath = groupPath,
-                        date = selectedDate.format(formatter)
-                    )
+                    coroutineScope.launch {
+                        educatorViewModel.getEducatorLessons(
+                            id = id,
+                            date = selectedDate
+                        )
+                        while (timetableViewModelApi.days.isEmpty()) {
+                            delay(10)
+                        }
+                        if (days.any { it.day.substring(0, 10) == selectedDate.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd")) }) {
+                            educatorViewModel.getEducatorLessonsByDay(days.find { it.day.substring(0, 10) == selectedDate.format(
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd"))}!!.dayStudyEvents)
+                        }
+                        else { lessons.clear() }
+                    }
                 }, modifier = Modifier.weight(1f)) {
                     Icon(
-                        imageVector = Icons.Default.KeyboardArrowRight,
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         tint = Orange,
                         contentDescription = "Next week"
                     )
@@ -378,7 +467,7 @@ fun LessonsScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                itemsIndexed(lessons) { index, lesson ->
+                itemsIndexed(lessons.filter { !it.isCancelled }) { index, lesson ->
 
                     if (index > 0 && index < lessons.size) Divider(
                         color = Color.LightGray,
@@ -399,8 +488,8 @@ fun LessonsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Image(
                                         painter =
-                                            if (darkTheme) painterResource(id = R.drawable.clock_o)
-                                            else painterResource(id = R.drawable.clock),
+                                        if (darkTheme) painterResource(id = R.drawable.clock_o)
+                                        else painterResource(id = R.drawable.clock),
                                         contentDescription = "time",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -419,8 +508,8 @@ fun LessonsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Image(
                                         painter =
-                                            if (darkTheme) painterResource(id = R.drawable.graduation_hat_o)
-                                            else painterResource(id = R.drawable.graduation_hat),
+                                        if (darkTheme) painterResource(id = R.drawable.graduation_hat_o)
+                                        else painterResource(id = R.drawable.graduation_hat),
                                         contentDescription = "lesson_name",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -439,8 +528,8 @@ fun LessonsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Image(
                                         painter =
-                                            if (darkTheme) painterResource(id = R.drawable.maps_and_flags_o)
-                                            else painterResource(id = R.drawable.maps_and_flags),
+                                        if (darkTheme) painterResource(id = R.drawable.maps_and_flags_o)
+                                        else painterResource(id = R.drawable.maps_and_flags),
                                         contentDescription = "lesson_place",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -449,7 +538,7 @@ fun LessonsScreen(
                                             .aspectRatio(1f)
                                     )
                                     Text(
-                                        text = lesson.place,
+                                        text = lesson.location,
                                         color = MaterialTheme.colors.onSurface,
                                         style = MaterialTheme.typography.subtitle2,
                                         modifier = Modifier.padding(start = 8.dp)
@@ -459,8 +548,8 @@ fun LessonsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Image(
                                         painter =
-                                            if (darkTheme) painterResource(id = R.drawable.man_user_o)
-                                            else painterResource(id = R.drawable.man_user),
+                                        if (darkTheme) painterResource(id = R.drawable.man_user_o)
+                                        else painterResource(id = R.drawable.man_user),
                                         contentDescription = "lesson_teacher",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -469,7 +558,7 @@ fun LessonsScreen(
                                             .aspectRatio(1f)
                                     )
                                     Text(
-                                        text = lesson.teacher,
+                                        text = lesson.groups,
                                         color = MaterialTheme.colors.onSurface,
                                         style = MaterialTheme.typography.subtitle2,
                                         modifier = Modifier.padding(start = 8.dp)
@@ -488,7 +577,7 @@ fun LessonsScreen(
 }
 
 @Composable
-fun DateItem(
+fun EducatorDateItemApi(
     date: LocalDate,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -529,7 +618,7 @@ fun DateItem(
                     )
                 }
                 Text(
-                    text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
+                    text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale("ru")),
                     color = MaterialTheme.colors.onSurface,
                     textAlign = TextAlign.Center,
                     fontSize = 12.sp,
@@ -537,14 +626,5 @@ fun DateItem(
                 )
             }
         }
-
-    }
-}
-
-@Preview
-@Composable
-fun DateItemPreview() {
-    SPBUTimetableTheme {
-        DateItem(date = LocalDate.now(), isSelected = true) {}
     }
 }

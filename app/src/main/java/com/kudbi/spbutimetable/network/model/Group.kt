@@ -1,4 +1,4 @@
-package com.example.spbutimetableonapi.network.model
+package com.kudbi.spbutimetable.network.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
