@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kudbi.spbutimetable.network.model.Group
 import com.kudbi.spbutimetable.R
-import com.kudbi.spbutimetable.domain.model.GroupInfo
 import com.kudbi.spbutimetable.ui.theme.White
 
 @Composable
@@ -46,19 +46,25 @@ fun GroupScreenTopAppBar(programYear: String, navigateUp: () -> Unit) {
 
 @Composable
 fun GroupsScreen(
-    groups: List<GroupInfo>,
-    programYear: String,
+    isLoading: Boolean,
+    groups: List<Group>,
+    year: String,
     onGroupSelected: (String, String) -> Unit,
     navigateUp: () -> Unit,
 ) {
     Scaffold(
         topBar = {
-            GroupScreenTopAppBar(programYear = programYear) {
+            GroupScreenTopAppBar(programYear = year) {
                 navigateUp()
             }
         }
     ) { padding ->
-        if ( groups.isNotEmpty() && groups[0].groupName == "0") {
+        if (isLoading) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(color = MaterialTheme.colors.primary)
+            }
+        }
+        if ( groups.isNotEmpty() && groups[0].studentGroupName == "0") {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     Image(
@@ -79,7 +85,7 @@ fun GroupsScreen(
         } else {
             LazyColumn(modifier = Modifier.padding(padding)) {
                 items(groups) { group ->
-                    GroupCard(group, onGroupSelected)
+                    GroupCard(group.studentGroupName, group.studentGroupId , onGroupSelected)
                 }
             }
         }
@@ -88,7 +94,8 @@ fun GroupsScreen(
 
 @Composable
 fun GroupCard(
-    group: GroupInfo,
+    groupName: String,
+    groupId: Int,
     onClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -103,10 +110,10 @@ fun GroupCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface)
-                .clickable { onClick(group.groupName, group.groupPath) },
+                .clickable { onClick(groupName, groupId.toString()) },
         ) {
             Text(
-                text = group.groupName,
+                text = groupName,
                 color = MaterialTheme.colors.onSurface,
                 modifier = modifier
                     .padding(14.dp)

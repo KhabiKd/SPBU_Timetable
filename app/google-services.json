@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "726023139605",
+    "firebase_url": "https://timetable-spbu-default-rtdb.firebaseio.com",
+    "project_id": "timetable-spbu",
+    "storage_bucket": "timetable-spbu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726023139605:android:c7f95a4de023f0e1f0791c",
+        "android_client_info": {
+          "package_name": "com.example.serverspbu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "726023139605-b2ctiosotjkngtuslfsvrvufkamp13f0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0s8Wggi9g06cQdHVu8yY_8tbl7mnfRts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "726023139605-b2ctiosotjkngtuslfsvrvufkamp13f0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726023139605:android:663f97479541ffc7f0791c",
+        "android_client_info": {
+          "package_name": "com.example.spbutimetable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "726023139605-b2ctiosotjkngtuslfsvrvufkamp13f0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0s8Wggi9g06cQdHVu8yY_8tbl7mnfRts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "726023139605-b2ctiosotjkngtuslfsvrvufkamp13f0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:726023139605:android:7af2b89f5d2bb0dbf0791c",
+        "android_client_info": {
+          "package_name": "com.kudbi.spbutimetable"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "726023139605-4q4k1u4ee92cjp7mp33n4ut2ea7bsbu2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kudbi.spbutimetable",
+            "certificate_hash": "888e77ec5742f2625cdd6eba8604c5ba154e83c1"
+          }
+        },
+        {
+          "client_id": "726023139605-b2ctiosotjkngtuslfsvrvufkamp13f0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0s8Wggi9g06cQdHVu8yY_8tbl7mnfRts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "726023139605-b2ctiosotjkngtuslfsvrvufkamp13f0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

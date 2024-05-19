@@ -12,6 +12,8 @@
     <string name="restInfo_puppy">Ура, пар нет!\nВремя для прогулок с любимым питомцем!</string>
     <string name="restInfo_rest">Ура, пар нет!\nВремя просто полежать на кровати!</string>
     <string name="restInfo_train">Ура, пар нет!\nВремя позаниматься спортом!</string>
-    <string name="to_faculties">Факультеты</string>
+    <string name="to_faculties">К стартовой странице</string>
     <string name="favorites">Здесь будут ваши Избранные Группы\nСкорее добавьте их!</string>
+    <string name="educators">Преподаватели</string>
+    <string name="search_educator">Пусто</string>
 </resources>

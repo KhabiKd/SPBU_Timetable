@@ -24,12 +24,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kudbi.spbutimetable.network.model.Faculty
 import com.kudbi.spbutimetable.R
-import com.kudbi.spbutimetable.domain.model.FacultyInfo
-import com.kudbi.spbutimetable.ui.theme.SPBUTimetableTheme
 import com.kudbi.spbutimetable.ui.theme.White
 import java.util.*
 
@@ -142,12 +140,13 @@ fun SearchAppBar(
 
 @Composable
 fun FacultiesScreen(
-    faculties: List<FacultyInfo>,
+    isLoading: Boolean,
+    faculties: List<Faculty>,
     onFacultySelected: (String) -> Unit,
 ) {
     var textState by remember { mutableStateOf("") }
     var searchState by remember { mutableStateOf(SearchState.CLOSED) }
-    var filteredFaculties: List<FacultyInfo>
+    var filteredFaculties: List<Faculty>
 
     Scaffold(
         topBar = {
@@ -160,7 +159,11 @@ fun FacultiesScreen(
             )
         }
     ) { padding ->
-        if (faculties.isEmpty()) {
+        if (isLoading) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(color = MaterialTheme.colors.primary)
+            }
+        } else if (faculties.isEmpty()) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                     Image(
@@ -183,9 +186,9 @@ fun FacultiesScreen(
                 filteredFaculties = if (textState.isEmpty() || searchState == SearchState.CLOSED) {
                     faculties
                 } else {
-                    val resultList = mutableListOf<FacultyInfo>()
+                    val resultList = mutableListOf<Faculty>()
                     for (faculty in faculties) {
-                        if (faculty.facultyName.lowercase(Locale.getDefault())
+                        if (faculty.name.lowercase(Locale.getDefault())
                                 .contains(textState.lowercase(Locale.getDefault()))
                         ) {
                             resultList.add(faculty)
@@ -203,7 +206,7 @@ fun FacultiesScreen(
 
 @Composable
 fun FacultyCard(
-    faculty: FacultyInfo,
+    faculty: Faculty,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -218,10 +221,10 @@ fun FacultyCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.surface)
-                .clickable { onClick(faculty.facultyPath) }
+                .clickable { onClick(faculty.alias) }
         ) {
             Text(
-                text = faculty.facultyName,
+                text = faculty.name,
                 color = MaterialTheme.colors.onSurface,
                 modifier = modifier
                     .padding(14.dp)
@@ -230,17 +233,17 @@ fun FacultyCard(
     }
 }
 
-@Preview
-@Composable
-fun FacultyScreenPreview() {
-    SPBUTimetableTheme {
-        FacultiesScreen(
-            faculties = listOf(
-                FacultyInfo("Процессы управления", "/AMCP"),
-                FacultyInfo("Математика, Механика", "/MATH"),
-                FacultyInfo("Физика", "/PHYS")
-            ),
-            onFacultySelected = {},
-        )
-    }
-}
+//@Preview
+//@Composable
+//fun FacultyScreenPreview() {
+//    SPBUTimetableTheme {
+//        FacultiesScreen(
+//            faculties = listOf(
+//                FacultyInfo("Процессы управления", "/AMCP"),
+//                FacultyInfo("Математика, Механика", "/MATH"),
+//                FacultyInfo("Физика", "/PHYS")
+//            ),
+//            onFacultySelected = {},
+//        )
+//    }
+//}
